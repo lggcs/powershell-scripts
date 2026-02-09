@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACL Audit Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+            padding: 20px;
+            height: 100vh;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: #94a3b8;
+        }
+
+        .search-box input:focus + svg {
+            color: #667eea;
+        }
+
+        .search-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .search-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .search-results {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tree-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .panel-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stats-summary {
+            display: flex;
+            gap: 15px;
+        }
+
+        .stat-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .stat-full {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .stat-modify {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .stat-read {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .tree-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .tree-node {
+            margin: 4px 0;
+        }
+
+        .node-content {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+            border: 1px solid transparent;
+        }
+
+        .node-content:hover {
+            background: #e2e8f0;
+            transform: translateX(4px);
+        }
+
+        .node-content.selected {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .node-toggle {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .node-toggle:hover {
+            background: #c7d2fe;
+        }
+
+        .node-toggle.none {
+            background: transparent;
+            color: #94a3b8;
+        }
+
+        .node-icon {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .node-name {
+            flex: 1;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .node-stats {
+            display: flex;
+            gap: 6px;
+        }
+
+        .node-stat {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .node-stat.full {
+            background: #ef4444;
+        }
+
+        .node-stat.modify {
+            background: #f59e0b;
+        }
+
+        .node-stat.read {
+            background: #3b82f6;
+        }
+
+        .node-children {
+            margin-left: 24px;
+            border-left: 2px solid #e2e8f0;
+            padding-left: 8px;
+            display: none;
+        }
+
+        .node-children.expanded {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .details-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            text-align: center;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .breadcrumb {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 15px;
+            word-break: break-all;
+        }
+
+        .breadcrumb span {
+            color: #94a3b8;
+        }
+
+        .details-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .details-header .folder-icon {
+            font-size: 32px;
+        }
+
+        .details-header h3 {
+            flex: 1;
+            font-size: 18px;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .permission-section {
+            margin-bottom: 24px;
+        }
+
+        .permission-section h4 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .permission-section h4.full { color: #dc2626; }
+        .permission-section h4.modify { color: #d97706; }
+        .permission-section h4.read { color: #2563eb; }
+
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 10px;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+
+        .user-item:hover {
+            background: #f1f5f9;
+            transform: translateX(4px);
+        }
+
+        .user-item.selected {
+            background: #e0e7ff;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        .user-rights {
+            font-size: 12px;
+            color: #64748b;
+            word-break: break-all;
+            margin-top: 2px;
+        }
+
+        .user-flags {
+            display: flex;
+            gap: 6px;
+        }
+
+        .flag {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .flag.allow {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .flag.inherit {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #94a3b8;
+        }
+
+        .loading::after {
+            content: "";
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr auto;
+            }
+
+            .details-panel {
+                max-height: 50vh;
+            }
+
+            .header {
+                flex-wrap: wrap;
+            }
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .view-btn:hover {
+            border-color: #667eea;
+        }
+
+        .view-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .search-panel {
+            display: none;
+        }
+
+        .search-panel.active {
+            display: block;
+        }
+
+        .result-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.2s;
+        }
+
+        .result-card:hover {
+            background: #f1f5f9;
+            border-color: #667eea;
+            transform: translateX(4px);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .result-path {
+            font-weight: 500;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .result-server {
+            padding: 4px 10px;
+            background: #e0e7ff;
+            color: #4338ca;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .result-permissions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .perm-tag {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .perm-tag.full {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .perm-tag.modify {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .perm-tag.read {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+        }
+
+        .no-results svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <div>
+                <h1>📁 ACL Audit Dashboard</h1>
+                <div class="subtitle">Browse folder permissions and access control lists</div>
+            </div>
+            <div class="view-toggle">
+                <button class="view-btn active" data-view="tree" onclick="switchView('tree')">📁 Tree</button>
+                <button class="view-btn" data-view="search" onclick="switchView('search')">🔍 Search User</button>
+            </div>
+        </div>
+
+        <div class="tree-panel" id="treePanel">
+            <div class="panel-header">
+                <h2>Folder Tree</h2>
+                <div class="stats-summary">
+                    <span class="stat-badge stat-full">FC</span>
+                    <span class="stat-badge stat-modify">M</span>
+                    <span class="stat-badge stat-read">R</span>
+                </div>
+            </div>
+            <div class="tree-container scrollbar" id="treeContainer">
+                <div class="loading" id="treeLoading"></div>
+            </div>
+        </div>
+
+        <div class="tree-panel search-panel" id="searchPanel">
+            <div class="search-header">
+                <h3>User Permission Search</h3>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search by username (e.g., jsmith, admin...)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+            </div>
+            <div style="margin-top: 20px;" id="searchResults" class="search-results scrollbar"></div>
+        </div>
+
+        <div class="details-panel scrollbar">
+            <div class="empty-state" id="emptyState">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                </svg>
+                <h3>Select a folder</h3>
+                <p>Click on any folder to view its ACL permissions</p>
+            </div>
+            <div id="detailsContent" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let selectedNode = null;
+        const nodeCache = new Map();
+
+        function getNodeStatsDot(stats) {
+            const dots = [];
+            if (stats.FullControl > 0) dots.push('<div class="node-stat full"></div>');
+            if (stats.Modify > 0) dots.push('<div class="node-stat modify"></div>');
+            if (stats.Read > 0) dots.push('<div class="node-stat read"></div>');
+            if (dots.length === 0) dots.push('<div class="node-stat"></div>');
+            return dots.join('');
+        }
+
+        function getAvatar(name) {
+            const parts = name.split('\\');
+            const username = parts[parts.length - 1];
+            return username.charAt(0).toUpperCase();
+        }
+
+        async function loadRoots() {
+            const container = document.getElementById('treeContainer');
+            const loading = document.getElementById('treeLoading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/roots`);
+                const roots = await response.json();
+                
+                loading.style.display = 'none';
+                
+                roots.forEach(root => {
+                    container.appendChild(createTreeNode(root));
+                });
+            } catch (error) {
+                loading.textContent = 'Error loading folders';
+                console.error(error);
+            }
+        }
+
+        function createTreeNode(node) {
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'tree-node';
+            nodeDiv.dataset.path = node.path;
+            nodeDiv.dataset.server = node.server || '';
+            nodeDiv.dataset.hasChildren = node.has_children;
+
+            const content = document.createElement('div');
+            content.className = 'node-content';
+            
+            const hasChildren = node.has_children;
+            const toggle = document.createElement('div');
+            toggle.className = `node-toggle ${hasChildren ? '' : 'none'}`;
+            toggle.textContent = hasChildren ? '▶' : '•';
+            
+            content.appendChild(toggle);
+            
+            const icon = document.createElement('span');
+            icon.className = 'node-icon';
+            icon.textContent = '📁';
+            content.appendChild(icon);
+            
+            const name = document.createElement('span');
+            name.className = 'node-name';
+            name.textContent = node.name;
+            content.appendChild(name);
+            
+            const stats = document.createElement('div');
+            stats.className = 'node-stats';
+            stats.innerHTML = getNodeStatsDot(node.stats);
+            content.appendChild(stats);
+            
+            content.addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleNodeClick(nodeDiv, node);
+            });
+            
+            if (hasChildren) {
+                toggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleNode(nodeDiv, toggle);
+                });
+            }
+            
+            nodeDiv.appendChild(content);
+            
+            if (hasChildren) {
+                const childrenDiv = document.createElement('div');
+                childrenDiv.className = 'node-children';
+                nodeDiv.appendChild(childrenDiv);
+            }
+            
+            return nodeDiv;
+        }
+
+        function toggleNode(nodeDiv, toggle) {
+            const children = nodeDiv.querySelector('.node-children');
+            const path = nodeDiv.dataset.path;
+            const server = nodeDiv.dataset.server;
+
+            if (children.classList.contains('expanded')) {
+                children.classList.remove('expanded');
+                toggle.textContent = '▶';
+                toggle.style.transform = 'rotate(0deg)';
+            } else {
+                children.classList.add('expanded');
+                toggle.textContent = '▼';
+                toggle.style.transform = 'rotate(90deg)';
+
+                if (children.children.length === 0) {
+                    loadChildren(path, children, server);
+                }
+            }
+        }
+
+        async function loadChildren(path, container, server = '') {
+            // Use query parameters to handle Windows paths properly
+            const searchParams = new URLSearchParams({
+                path: path,
+                ...(server ? { server } : {})
+            });
+
+            try {
+                const response = await fetch(`${API_BASE}/api/children?${searchParams}`);
+                const children = await response.json();
+
+                if (!Array.isArray(children)) {
+                    console.error('Expected array, got:', children);
+                    container.innerHTML = '<div style="padding: 10px; color: #ef4444;">Error loading children: Invalid response</div>';
+                    return;
+                }
+
+                children.forEach(child => {
+                    // Pass server from parent to children (it stays the same)
+                    child.server = server || child.server || '';
+                    container.appendChild(createTreeNode(child));
+                });
+            } catch (error) {
+                container.innerHTML = '<div style="padding: 10px; color: #ef4444;">Error loading children</div>';
+                console.error(error);
+            }
+        }
+
+        async function handleNodeClick(nodeDiv, node) {
+            document.querySelectorAll('.node-content').forEach(el => el.classList.remove('selected'));
+            nodeDiv.querySelector('.node-content').classList.add('selected');
+            selectedNode = node;
+            
+            await showNodeDetails(node);
+        }
+
+        async function showNodeDetails(node) {
+            const emptyState = document.getElementById('emptyState');
+            const detailsContent = document.getElementById('detailsContent');
+
+            emptyState.style.display = 'none';
+            detailsContent.style.display = 'block';
+            detailsContent.innerHTML = '<div class="loading"></div>';
+
+            const server = node.server || '';
+            const searchParams = new URLSearchParams({
+                path: node.path,
+                ...(server ? { server } : {})
+            });
+
+            try {
+                const response = await fetch(`${API_BASE}/api/node?${searchParams}`);
+                const data = await response.json();
+
+                renderNodeDetails(data);
+            } catch (error) {
+                detailsContent.innerHTML = '<div style="padding: 20px; color: #ef4444;">Error loading details</div>';
+                console.error(error);
+            }
+        }
+
+        function renderNodeDetails(node) {
+            const detailsContent = document.getElementById('detailsContent');
+            
+            let html = `
+                <div class="breadcrumb">📁 ${node.path}</div>
+                <div class="details-header">
+                    <span class="folder-icon">📁</span>
+                    <h3>${node.name}</h3>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <span class="stat-badge stat-full">${node.stats.FullControl} Full Control</span>
+                    <span class="stat-badge stat-modify">${node.stats.Modify} Modify</span>
+                    <span class="stat-badge stat-read">${node.stats.Read} Read</span>
+                </div>
+            `;
+            
+            for (const [permissionType, users] of Object.entries(node.users)) {
+                if (users.length === 0) continue;
+                
+                const typeLabel = permissionType === 'FullControl' ? 'Full Control' : permissionType;
+                const typeClass = permissionType === 'FullControl' ? 'full' : 
+                                  permissionType === 'Modify' ? 'modify' : 'read';
+                
+                html += `
+                    <div class="permission-section">
+                        <h4 class="${typeClass}">${typeLabel} (${users.length})</h4>
+                        <div class="user-list">
+                `;
+                
+                users.forEach(user => {
+                    const identityParts = user.identity.split('\\');
+                    const displayName = identityParts.length > 1 ? identityParts[1] : user.identity;
+                    const domain = identityParts.length > 1 ? identityParts[0] : '';
+                    
+                    html += `
+                        <div class="user-item">
+                            <div class="user-avatar">${getAvatar(user.identity)}</div>
+                            <div class="user-info">
+                                <div class="user-name">${displayName}</div>
+                                <div class="user-rights">${user.rights}</div>
+                            </div>
+                            <div class="user-flags">
+                                <span class="flag allow">${user.access_type}</span>
+                                <span class="flag inherit">${user.inherited ? 'Inherited' : 'Direct'}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            detailsContent.innerHTML = html;
+        }
+
+        function switchView(view) {
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+
+            if (view === 'tree') {
+                document.getElementById('treePanel').style.display = 'flex';
+                document.getElementById('searchPanel').classList.remove('active');
+            } else {
+                document.getElementById('treePanel').style.display = 'none';
+                document.getElementById('searchPanel').classList.add('active');
+                document.getElementById('searchInput').focus();
+            }
+        }
+
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+
+            if (query.length < 2) {
+                document.getElementById('searchResults').innerHTML = '';
+                return;
+            }
+
+            searchTimeout = setTimeout(() => searchUser(query), 300);
+        });
+
+        async function searchUser(query) {
+            const resultsContainer = document.getElementById('searchResults');
+            resultsContainer.innerHTML = '<div class="loading"></div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+
+                if (data.results && data.results.length > 0) {
+                    renderSearchResults(data.results, data.count);
+                } else {
+                    resultsContainer.innerHTML = `
+                        <div class="no-results">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="M21 21l-4.35-4.35"/>
+                            </svg>
+                            <h3>No permissions found</h3>
+                            <p>Try a different username</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsContainer.innerHTML = '<div style="padding: 20px; color: #ef4444;">Error searching. Please try again.</div>';
+                console.error(error);
+            }
+        }
+
+        function renderSearchResults(results, count) {
+            const resultsContainer = document.getElementById('searchResults');
+
+            let html = `
+                <div style="margin-bottom: 12px; color: #64748b; font-size: 13px;">
+                    Found <strong>${count}</strong> folder(s) with matches
+                </div>
+            `;
+
+            results.forEach((result, index) => {
+                const folderName = result.path.split('\\').pop() || result.path;
+                html += `
+                    <div class="result-card search-result-item" style="cursor: pointer;" data-path="${result.path}" data-server="${result.server}" data-name="${folderName}">
+                        <div class="result-header">
+                            <div class="result-path">${result.path}</div>
+                            <span class="result-server">${result.server}</span>
+                        </div>
+                        <div class="result-permissions">
+                `;
+
+                result.permissions.forEach(perm => {
+                    const permClass = perm.type === 'FullControl' ? 'full' :
+                                    perm.type === 'Modify' ? 'modify' : 'read';
+                    const permLabel = perm.type === 'FullControl' ? 'Full Control' : perm.type;
+
+                    html += `
+                        <span class="perm-tag ${permClass}">
+                            ${permLabel}
+                        </span>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsContainer.innerHTML = html;
+
+            // Add click listeners to search results
+            document.querySelectorAll('.search-result-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    showNodeDetails({
+                        path: item.dataset.path,
+                        server: item.dataset.server,
+                        name: item.dataset.name
+                    });
+                });
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRoots();
+        });
+    </script>
+</body>
+</html>

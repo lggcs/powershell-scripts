@@ -1,0 +1,469 @@
+{
+  "TESTSERVER": [
+    {
+      "name": "DataShare",
+      "path": "D:\\\\Shares\\\\DataShare",
+      "stats": {
+        "FullControl": 2,
+        "Modify": 3,
+        "Read": 2
+      },
+      "users": {
+        "FullControl": [
+          {
+            "rights": "FullControl",
+            "key": "DOMAIN_admin_False",
+            "access_type": "Allow",
+            "inherited": false,
+            "identity": "DOMAIN\\admin"
+          },
+          {
+            "rights": "FullControl",
+            "key": "DOMAIN_jsmith_False",
+            "access_type": "Allow",
+            "inherited": false,
+            "identity": "DOMAIN\\jsmith"
+          }
+        ],
+        "Modify": [
+          {
+            "rights": "Modify",
+            "key": "DOMAIN_rwgroup_False",
+            "access_type": "Allow",
+            "inherited": false,
+            "identity": "DOMAIN\\rwgroup"
+          },
+          {
+            "rights": "Modify",
+            "key": "DOMAIN_kjones_False",
+            "access_type": "Allow",
+            "inherited": false,
+            "identity": "DOMAIN\\kjones"
+          },
+          {
+            "rights": "Modify",
+            "key": "DOMAIN_mwilson_False",
+            "access_type": "Allow",
+            "inherited": false,
+            "identity": "DOMAIN\\mwilson"
+          }
+        ],
+        "Read": [
+          {
+            "rights": "Read",
+            "key": "DOMAIN_readgroup_False",
+            "access_type": "Allow",
+            "inherited": false,
+            "identity": "DOMAIN\\readgroup"
+          },
+          {
+            "rights": "Read",
+            "key": "DOMAIN_peters_False",
+            "access_type": "Allow",
+            "inherited": false,
+            "identity": "DOMAIN\\peters"
+          }
+        ]
+      },
+      "children": [
+        {
+          "name": "Documents",
+          "path": "D:\\\\Shares\\\\DataShare\\\\Documents",
+          "stats": {
+            "FullControl": 2,
+            "Modify": 3,
+            "Read": 2
+          },
+          "users": {
+            "FullControl": [
+              {
+                "rights": "FullControl",
+                "key": "DOMAIN_admin_True",
+                "access_type": "Allow",
+                "inherited": true,
+                "identity": "DOMAIN\\admin"
+              },
+              {
+                "rights": "FullControl",
+                "key": "DOMAIN_jsmith_True",
+                "access_type": "Allow",
+                "inherited": true,
+                "identity": "DOMAIN\\jsmith"
+              }
+            ],
+            "Modify": [
+              {
+                "rights": "Modify",
+                "key": "DOMAIN_rwgroup_True",
+                "access_type": "Allow",
+                "inherited": true,
+                "identity": "DOMAIN\\rwgroup"
+              },
+              {
+                "rights": "Modify",
+                "key": "DOMAIN_kjones_True",
+                "access_type": "Allow",
+                "inherited": true,
+                "identity": "DOMAIN\\kjones"
+              },
+              {
+                "rights": "Modify",
+                "key": "DOMAIN_mwilson_True",
+                "access_type": "Allow",
+                "inherited": true,
+                "identity": "DOMAIN\\mwilson"
+              }
+            ],
+            "Read": [
+              {
+                "rights": "Read",
+                "key": "DOMAIN_readgroup_True",
+                "access_type": "Allow",
+                "inherited": true,
+                "identity": "DOMAIN\\readgroup"
+              },
+              {
+                "rights": "Read",
+                "key": "DOMAIN_peters_True",
+                "access_type": "Allow",
+                "inherited": true,
+                "identity": "DOMAIN\\peters"
+              }
+            ]
+          },
+          "children": [
+            {
+              "name": "HR",
+              "path": "D:\\\\Shares\\\\DataShare\\\\Documents\\\\HR",
+              "stats": {
+                "FullControl": 3,
+                "Modify": 2,
+                "Read": 2
+              },
+              "users": {
+                "FullControl": [
+                  {
+                    "rights": "FullControl",
+                    "key": "DOMAIN_admin_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\admin"
+                  },
+                  {
+                    "rights": "FullControl",
+                    "key": "DOMAIN_jsmith_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\jsmith"
+                  },
+                  {
+                    "rights": "FullControl",
+                    "key": "DOMAIN_hrboss_False",
+                    "access_type": "Allow",
+                    "inherited": false,
+                    "identity": "DOMAIN\\hrboss"
+                  }
+                ],
+                "Modify": [
+                  {
+                    "rights": "Modify",
+                    "key": "DOMAIN_hrgroup_False",
+                    "access_type": "Allow",
+                    "inherited": false,
+                    "identity": "DOMAIN\\hrgroup"
+                  },
+                  {
+                    "rights": "Modify",
+                    "key": "DOMAIN_kjones_False",
+                    "access_type": "Allow",
+                    "inherited": false,
+                    "identity": "DOMAIN\\kjones"
+                  }
+                ],
+                "Read": [
+                  {
+                    "rights": "Read",
+                    "key": "DOMAIN_readgroup_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\readgroup"
+                  },
+                  {
+                    "rights": "Read",
+                    "key": "DOMAIN_peters_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\peters"
+                  }
+                ]
+              },
+              "children": []
+            },
+            {
+              "name": "Finance",
+              "path": "D:\\\\Shares\\\\DataShare\\\\Documents\\\\Finance",
+              "stats": {
+                "FullControl": 2,
+                "Modify": 4,
+                "Read": 2
+              },
+              "users": {
+                "FullControl": [
+                  {
+                    "rights": "FullControl",
+                    "key": "DOMAIN_admin_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\admin"
+                  },
+                  {
+                    "rights": "FullControl",
+                    "key": "DOMAIN_jsmith_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\jsmith"
+                  }
+                ],
+                "Modify": [
+                  {
+                    "rights": "Modify",
+                    "key": "DOMAIN_rwgroup_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\rwgroup"
+                  },
+                  {
+                    "rights": "Modify",
+                    "key": "DOMAIN_financeteam_False",
+                    "access_type": "Allow",
+                    "inherited": false,
+                    "identity": "DOMAIN\\financeteam"
+                  },
+                  {
+                    "rights": "Modify",
+                    "key": "DOMAIN_kjones_False",
+                    "access_type": "Allow",
+                    "inherited": false,
+                    "identity": "DOMAIN\\kjones"
+                  },
+                  {
+                    "rights": "Modify",
+                    "key": "DOMAIN_mwilson_False",
+                    "access_type": "Allow",
+                    "inherited": false,
+                    "identity": "DOMAIN\\mwilson"
+                  }
+                ],
+                "Read": [
+                  {
+                    "rights": "Read",
+                    "key": "DOMAIN_readgroup_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\readgroup"
+                  },
+                  {
+                    "rights": "Read",
+                    "key": "DOMAIN_peters_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\peters"
+                  }
+                ]
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "Projects",
+          "path": "D:\\\\Shares\\\\DataShare\\\\Projects",
+          "stats": {
+            "FullControl": 2,
+            "Modify": 2,
+            "Read": 2
+          },
+          "users": {
+            "FullControl": [
+              {
+                "rights": "FullControl",
+                "key": "DOMAIN_admin_True",
+                "access_type": "Allow",
+                "inherited": true,
+                "identity": "DOMAIN\\admin"
+              },
+              {
+                "rights": "FullControl",
+                "key": "DOMAIN_jsmith_True",
+                "access_type": "Allow",
+                "inherited": true,
+                "identity": "DOMAIN\\jsmith"
+              }
+            ],
+            "Modify": [
+              {
+                "rights": "Modify",
+                "key": "DOMAIN_rwgroup_True",
+                "access_type": "Allow",
+                "inherited": true,
+                "identity": "DOMAIN\\rwgroup"
+              },
+              {
+                "rights": "Modify",
+                "key": "DOMAIN_kjones_False",
+                "access_type": "Allow",
+                "inherited": false,
+                "identity": "DOMAIN\\kjones"
+              }
+            ],
+            "Read": [
+              {
+                "rights": "Read",
+                "key": "DOMAIN_readgroup_True",
+                "access_type": "Allow",
+                "inherited": true,
+                "identity": "DOMAIN\\readgroup"
+              },
+              {
+                "rights": "Read",
+                "key": "DOMAIN_peters_False",
+                "access_type": "Allow",
+                "inherited": false,
+                "identity": "DOMAIN\\peters"
+              }
+            ]
+          },
+          "children": [
+            {
+              "name": "2025",
+              "path": "D:\\\\Shares\\\\DataShare\\\\Projects\\\\2025",
+              "stats": {
+                "FullControl": 2,
+                "Modify": 3,
+                "Read": 3
+              },
+              "users": {
+                "FullControl": [
+                  {
+                    "rights": "FullControl",
+                    "key": "DOMAIN_admin_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\admin"
+                  },
+                  {
+                    "rights": "FullControl",
+                    "key": "DOMAIN_jsmith_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\jsmith"
+                  }
+                ],
+                "Modify": [
+                  {
+                    "rights": "Modify",
+                    "key": "DOMAIN_rwgroup_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\rwgroup"
+                  },
+                  {
+                    "rights": "Modify",
+                    "key": "DOMAIN_kjones_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\kjones"
+                  },
+                  {
+                    "rights": "Modify",
+                    "key": "DOMAIN_mwilson_False",
+                    "access_type": "Allow",
+                    "inherited": false,
+                    "identity": "DOMAIN\\mwilson"
+                  }
+                ],
+                "Read": [
+                  {
+                    "rights": "Read",
+                    "key": "DOMAIN_readgroup_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\readgroup"
+                  },
+                  {
+                    "rights": "Read",
+                    "key": "DOMAIN_peters_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\peters"
+                  },
+                  {
+                    "rights": "Read",
+                    "key": "DOMAIN_garcia_False",
+                    "access_type": "Allow",
+                    "inherited": false,
+                    "identity": "DOMAIN\\garcia"
+                  }
+                ]
+              },
+              "children": []
+            },
+            {
+              "name": "Q1",
+              "path": "D:\\\\Shares\\\\DataShare\\\\Projects\\\\Q1",
+              "stats": {
+                "FullControl": 1,
+                "Modify": 2,
+                "Read": 2
+              },
+              "users": {
+                "FullControl": [
+                  {
+                    "rights": "FullControl",
+                    "key": "DOMAIN_admin_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\admin"
+                  }
+                ],
+                "Modify": [
+                  {
+                    "rights": "Modify",
+                    "key": "DOMAIN_rwgroup_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\rwgroup"
+                  },
+                  {
+                    "rights": "Modify",
+                    "key": "DOMAIN_projectteam_False",
+                    "access_type": "Allow",
+                    "inherited": false,
+                    "identity": "DOMAIN\\projectteam"
+                  }
+                ],
+                "Read": [
+                  {
+                    "rights": "Read",
+                    "key": "DOMAIN_readgroup_True",
+                    "access_type": "Allow",
+                    "inherited": true,
+                    "identity": "DOMAIN\\readgroup"
+                  },
+                  {
+                    "rights": "Read",
+                    "key": "DOMAIN_q1readers_False",
+                    "access_type": "Allow",
+                    "inherited": false,
+                    "identity": "DOMAIN\\q1readers"
+                  }
+                ]
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
