@@ -28,6 +28,8 @@
            106  = Invalid options detected (e.g. -biosPassword on /applyUpdates)
            107  = Invalid option value (e.g. -outputlog path is a reserved folder)
            500  = No updates found (treat as success, no reboot needed)
+                  -- ALSO returned on network/catalog download errors;
+                  -- the script inspects the output log to distinguish.
            502/503 = scan cancelled / network error during apply
            1002 = network error during apply
            3000-3005 = Dell Client Management Service not running/installed
@@ -292,7 +294,7 @@ function Resume-AllBitLocker {
         # Get-BitLockerVolume can emit $null entries on some hosts, and under
         # Set-StrictMode -Version 3.0, $null.ProtectionStatus throws.
         Get-BitLockerVolume -ErrorAction SilentlyContinue |
-            Where-Object { $null -ne $_ -and $_.ProtectionStatus -eq 'Off' -and $_.VolumeStatus -ne 'DecryptionInProgress' } |
+            Where-Object { $null -ne $_ -and $_.ProtectionStatus -eq 'Off' -and $_.VolumeStatus -ne 'DecryptionInProgress' -and $_.VolumeStatus -ne 'FullyDecrypted' } |
             ForEach-Object {
                 $mount = Get-PropertySafe $_ 'MountPoint'
                 if (-not $mount) { return }
@@ -377,14 +379,20 @@ if ($pwArg) {
     Write-Log "Stage 2a: dcu-cli.exe /configure <password-arg-masked> -outputlog=`"$dcuCliConfigureLog`""
     Write-Log "Password mode: $pwLog"
 
+    # Redirect stdout to a temp file because dcu-cli.exe /configure prints
+    # the BIOS password value in cleartext to stdout (e.g. "'biosPassword'
+    # setting updated with value 'xxx'"). We discard the file afterwards.
+    $configureStdout = [System.IO.Path]::GetTempFileName()
     try {
-        $configureProc = Start-Process -FilePath $DcuCli -ArgumentList $configureArgList -Wait -NoNewWindow -PassThru
+        $configureProc = Start-Process -FilePath $DcuCli -ArgumentList $configureArgList -Wait -NoNewWindow -PassThru -RedirectStandardOutput $configureStdout
         $configureExit = $configureProc.ExitCode
     } catch {
         Write-Log "Failed to launch dcu-cli.exe /configure: $($_.Exception.Message)" -Level ERROR
+        Remove-Item -Path $configureStdout -Force -ErrorAction SilentlyContinue
         Resume-AllBitLocker
         Exit 1
     }
+    Remove-Item -Path $configureStdout -Force -ErrorAction SilentlyContinue
     Write-Log "dcu-cli.exe /configure ExitCode: $configureExit"
     # DCU /configure exit codes use the same table as /applyUpdates:
     # 0 = success, 106 = invalid options, 107 = invalid option value, etc.
@@ -464,6 +472,23 @@ switch ($exitCode) {
         Exit 1
     }
     500 {
+        # Dell documents 500 as "No updates found" but DCU CLI also returns
+        # 500 when it cannot download update catalogs due to a network
+        # error. Inspect the output log to distinguish: if it contains
+        # network/catalog error text, treat as failure; otherwise it's a
+        # genuine "no updates available" result.
+        $isNetworkError = $false
+        if ($dcuCliLog -and (Test-Path -Path $dcuCliLog -PathType Leaf)) {
+            $logContent = Get-Content -Path $dcuCliLog -Raw -ErrorAction SilentlyContinue
+            if ($logContent -match 'network|catalog|connect|download.*error|unable to (connect|download|reach)') {
+                $isNetworkError = $true
+            }
+        }
+        if ($isNetworkError) {
+            Write-Log "DCU CLI: Exit 500 with network/catalog error in output log. Host may be offline or Dell catalog unreachable. See $dcuCliLog" -Level ERROR
+            Resume-AllBitLocker
+            Exit 1
+        }
         Write-Log "DCU CLI: No updates found for the system (exit 500). Treating as success." -Level SUCCESS
         Resume-AllBitLocker
         Exit 0
